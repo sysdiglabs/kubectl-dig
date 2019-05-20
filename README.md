@@ -1,7 +1,7 @@
 # kubectl dig
 
 <table style="width: 100%; border-style: none;"><tr>
-<td style="width: 140px; text-align: center;"><a href="https://aka.ms/vscode-remote/download/extension"><img width="128px" src="docs/img/logo.png" alt="kubectl dig logo"/></a></td>
+<td style="width: 140px; text-align: center;"><img width="128px" src="docs/img/logo.png" alt="kubectl dig logo"/></td>
 <td>
 <strong>kubectl dig</strong><br />
 <i>A is a simple, intuitive, and fully customizable UI to dig into your kubernetes clusters</i><br>
