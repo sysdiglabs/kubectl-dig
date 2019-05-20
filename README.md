@@ -12,7 +12,7 @@ kubectl dig <node>
 </td>
 </tr></table>
 
-
+ASCIINEMA HERE
 ## Install
 
 
@@ -22,6 +22,7 @@ go get -u github.com/leodido/kubectl-dig/cmd/kubectl-dig
 
 ## Usage
 
+### Just dig
 There's only one thing to do, provide the node name!
 
 ```
@@ -34,6 +35,25 @@ provide it to the dig command!
 ```
 kubectl dig ip-180-12-0-152.ec2.internal
 ```
+
+### dig + cluster metadata
+
+By default, `kubectl dig` shows only information about the local node, if you want to dig from that node to the whole cluster you have to provide a **service account** that can read resources.
+
+You can create a `dig-viewer` service account with:
+
+```bash
+kubectl apply -f https://github.com/leodido/kubectl-dig/raw/develop/docs/setup/read-serviceaccount.yml
+```
+
+Then you just use it with `kubectl dig`.
+
+```bash
+kubectl dig --serviceaccount dig-viewer 127.0.0.1
+```
+
+At this point you have access to the fancy cluster metadata, press `F2` and look for the `K8s` views!
+
 
 ---
 
