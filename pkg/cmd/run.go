@@ -63,7 +63,7 @@ func NewRunOptions(streams genericclioptions.IOStreams) *RunOptions {
 	return &RunOptions{
 		IOStreams: streams,
 
-		serviceAccount: "default",
+		serviceAccount: "",
 		imageName:      ImageNameTag,
 	}
 }

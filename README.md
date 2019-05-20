@@ -12,7 +12,8 @@ kubectl dig <node>
 </td>
 </tr></table>
 
-ASCIINEMA HERE
+[![asciicast](https://asciinema.org/a/czA06tSyEjKpusDooKZe3KQry.svg)](https://asciinema.org/a/czA06tSyEjKpusDooKZe3KQry)
+
 ## Install
 
 

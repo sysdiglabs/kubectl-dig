@@ -44,12 +44,18 @@ func (c *Client) WithOutStream(o io.Writer) {
 
 // CreateJob ...
 func (c *Client) CreateJob(j Job) (*batchv1.Job, error) {
-	// TODO: this actually works only if the connection is made in https,
-	// we should check whether this connection can be plain http too.
 	command := []string{
-		"bash",
-		"-c",
-		"csysdig -K /var/run/secrets/kubernetes.io/serviceaccount/token -k https://${KUBERNETES_SERVICE_HOST}",
+		"csysdig",
+	}
+
+	if len(j.ServiceAccount) > 0 {
+		// TODO: this actually works only if the connection is made in https,
+		// we should check whether this connection can be plain http too.
+		command = []string{
+			"bash",
+			"-c",
+			"csysdig -K /var/run/secrets/kubernetes.io/serviceaccount/token -k https://${KUBERNETES_SERVICE_HOST}",
+		}
 	}
 
 	commonMeta := metav1.ObjectMeta{
