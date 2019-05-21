@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	digLong     = `...`
-	digExamples = `%[1]s ...`
+	digLong     = `Deep kubernetes visibility.`
+	digExamples = runExamples
 )
 
 // DigOptions ...

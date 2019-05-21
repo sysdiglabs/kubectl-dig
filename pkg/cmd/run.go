@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/spf13/cobra"
 	"github.com/sysdiglabs/kubectl-dig/pkg/attacher"
 	"github.com/sysdiglabs/kubectl-dig/pkg/digjob"
 	"github.com/sysdiglabs/kubectl-dig/pkg/factory"
 	"github.com/sysdiglabs/kubectl-dig/pkg/meta"
 	"github.com/sysdiglabs/kubectl-dig/pkg/signals"
-	"github.com/spf13/cobra"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/uuid"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
@@ -29,17 +29,21 @@ var (
 
 	runLong = runShort
 
-	runExamples = `%[1]s ...`
+	runExamples = `
+• dig into a node
+%[1]s dig <node-name>
+
+• dig into a node and access the cluster metadata using a service account
+%[1]s dig --serviceaccount <serviceaccount-name> <node-name>
+
+• dig into a node, putting the dig pod into a different namespace than default
+%[1]s dig --namespace <namespace-name> <node-name>
+`
 
 	runCommand           = "run"
 	usageString          = "(NODE)"
 	requiredArgErrString = fmt.Sprintf("%s is a required argument for the %s command", usageString, runCommand)
 )
-
-// todo > flags/ideas
-// --scap
-// --filter to directly pass a filter to sysdig
-// check for lib module
 
 // RunOptions ...
 type RunOptions struct {
