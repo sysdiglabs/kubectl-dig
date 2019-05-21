@@ -7,7 +7,7 @@ GIT_COMMIT := $(if $(shell git status --porcelain --untracked-files=no),${COMMIT
 GIT_BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD 2>/dev/null)
 GIT_BRANCH_CLEAN := $(shell echo $(GIT_BRANCH) | sed -e "s/[^[:alnum:]]/-/g")
 
-LDFLAGS := -ldflags '-X github.com/leodido/kubectl-dig/pkg/version.buildTime=$(shell date +%s) -X github.com/leodido/kubectl-dig/pkg/version.gitCommit=${GIT_COMMIT}'
+LDFLAGS := -ldflags '-X github.com/sysdiglabs/kubectl-dig/pkg/version.buildTime=$(shell date +%s) -X github.com/sysdiglabs/kubectl-dig/pkg/version.gitCommit=${GIT_COMMIT}'
 TESTPACKAGES := $(shell go list ./...)
 
 kubectl_dig ?= _output/bin/kubectl-dig

@@ -1,4 +1,4 @@
-module github.com/leodido/kubectl-dig
+module github.com/sysdiglabs/kubectl-dig
 
 go 1.12
 

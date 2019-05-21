@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/leodido/kubectl-dig/pkg/cmd"
+	"github.com/sysdiglabs/kubectl-dig/pkg/cmd"
 	"github.com/spf13/pflag"
     "github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"

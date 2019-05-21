@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/leodido/kubectl-dig/pkg/meta"
+	"github.com/sysdiglabs/kubectl-dig/pkg/meta"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes/scheme"

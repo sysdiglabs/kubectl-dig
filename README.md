@@ -18,7 +18,7 @@ kubectl dig <node>
 
 
 ```bash
-go get -u github.com/leodido/kubectl-dig/cmd/kubectl-dig
+go get -u github.com/sysdiglabs/kubectl-dig/cmd/kubectl-dig
 ```
 
 ## Usage
@@ -44,7 +44,7 @@ By default, `kubectl dig` shows only information about the local node, if you wa
 You can create a `dig-viewer` service account with:
 
 ```bash
-kubectl apply -f https://github.com/leodido/kubectl-dig/raw/develop/docs/setup/read-serviceaccount.yml
+kubectl apply -f https://github.com/sysdiglabs/kubectl-dig/raw/develop/docs/setup/read-serviceaccount.yml
 ```
 
 Then you just use it with `kubectl dig`.
