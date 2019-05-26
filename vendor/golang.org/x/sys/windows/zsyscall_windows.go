@@ -76,6 +76,7 @@ var (
 	procGetVersion                         = modkernel32.NewProc("GetVersion")
 	procFormatMessageW                     = modkernel32.NewProc("FormatMessageW")
 	procExitProcess                        = modkernel32.NewProc("ExitProcess")
+	procIsWow64Process                     = modkernel32.NewProc("IsWow64Process")
 	procCreateFileW                        = modkernel32.NewProc("CreateFileW")
 	procReadFile                           = modkernel32.NewProc("ReadFile")
 	procWriteFile                          = modkernel32.NewProc("WriteFile")
@@ -188,6 +189,10 @@ var (
 	procResetEvent                         = modkernel32.NewProc("ResetEvent")
 	procPulseEvent                         = modkernel32.NewProc("PulseEvent")
 	procSleepEx                            = modkernel32.NewProc("SleepEx")
+	procCreateJobObjectW                   = modkernel32.NewProc("CreateJobObjectW")
+	procAssignProcessToJobObject           = modkernel32.NewProc("AssignProcessToJobObject")
+	procTerminateJobObject                 = modkernel32.NewProc("TerminateJobObject")
+	procSetErrorMode                       = modkernel32.NewProc("SetErrorMode")
 	procDefineDosDeviceW                   = modkernel32.NewProc("DefineDosDeviceW")
 	procDeleteVolumeMountPointW            = modkernel32.NewProc("DeleteVolumeMountPointW")
 	procFindFirstVolumeW                   = modkernel32.NewProc("FindFirstVolumeW")
@@ -255,13 +260,16 @@ var (
 	procCopySid                            = modadvapi32.NewProc("CopySid")
 	procAllocateAndInitializeSid           = modadvapi32.NewProc("AllocateAndInitializeSid")
 	procCreateWellKnownSid                 = modadvapi32.NewProc("CreateWellKnownSid")
+	procIsWellKnownSid                     = modadvapi32.NewProc("IsWellKnownSid")
 	procFreeSid                            = modadvapi32.NewProc("FreeSid")
 	procEqualSid                           = modadvapi32.NewProc("EqualSid")
+	procGetSidIdentifierAuthority          = modadvapi32.NewProc("GetSidIdentifierAuthority")
+	procGetSidSubAuthorityCount            = modadvapi32.NewProc("GetSidSubAuthorityCount")
+	procGetSidSubAuthority                 = modadvapi32.NewProc("GetSidSubAuthority")
+	procIsValidSid                         = modadvapi32.NewProc("IsValidSid")
 	procCheckTokenMembership               = modadvapi32.NewProc("CheckTokenMembership")
 	procOpenProcessToken                   = modadvapi32.NewProc("OpenProcessToken")
-	procGetCurrentThreadToken              = modadvapi32.NewProc("GetCurrentThreadToken")
 	procOpenThreadToken                    = modadvapi32.NewProc("OpenThreadToken")
-	procGetCurrentProcessToken             = modadvapi32.NewProc("GetCurrentProcessToken")
 	procImpersonateSelf                    = modadvapi32.NewProc("ImpersonateSelf")
 	procRevertToSelf                       = modadvapi32.NewProc("RevertToSelf")
 	procSetThreadToken                     = modadvapi32.NewProc("SetThreadToken")
@@ -636,6 +644,18 @@ func FormatMessage(flags uint32, msgsrc uintptr, msgid uint32, langid uint32, bu
 
 func ExitProcess(exitcode uint32) {
 	syscall.Syscall(procExitProcess.Addr(), 1, uintptr(exitcode), 0, 0)
+	return
+}
+
+func IsWow64Process(handle Handle, isWow64 *bool) (err error) {
+	r1, _, e1 := syscall.Syscall(procIsWow64Process.Addr(), 2, uintptr(handle), uintptr(unsafe.Pointer(isWow64)), 0)
+	if r1 == 0 {
+		if e1 != 0 {
+			err = errnoErr(e1)
+		} else {
+			err = syscall.EINVAL
+		}
+	}
 	return
 }
 
@@ -2013,6 +2033,49 @@ func SleepEx(milliseconds uint32, alertable bool) (ret uint32) {
 	return
 }
 
+func CreateJobObject(jobAttr *SecurityAttributes, name *uint16) (handle Handle, err error) {
+	r0, _, e1 := syscall.Syscall(procCreateJobObjectW.Addr(), 2, uintptr(unsafe.Pointer(jobAttr)), uintptr(unsafe.Pointer(name)), 0)
+	handle = Handle(r0)
+	if handle == 0 {
+		if e1 != 0 {
+			err = errnoErr(e1)
+		} else {
+			err = syscall.EINVAL
+		}
+	}
+	return
+}
+
+func AssignProcessToJobObject(job Handle, process Handle) (err error) {
+	r1, _, e1 := syscall.Syscall(procAssignProcessToJobObject.Addr(), 2, uintptr(job), uintptr(process), 0)
+	if r1 == 0 {
+		if e1 != 0 {
+			err = errnoErr(e1)
+		} else {
+			err = syscall.EINVAL
+		}
+	}
+	return
+}
+
+func TerminateJobObject(job Handle, exitCode uint32) (err error) {
+	r1, _, e1 := syscall.Syscall(procTerminateJobObject.Addr(), 2, uintptr(job), uintptr(exitCode), 0)
+	if r1 == 0 {
+		if e1 != 0 {
+			err = errnoErr(e1)
+		} else {
+			err = syscall.EINVAL
+		}
+	}
+	return
+}
+
+func SetErrorMode(mode uint32) (ret uint32) {
+	r0, _, _ := syscall.Syscall(procSetErrorMode.Addr(), 1, uintptr(mode), 0, 0)
+	ret = uint32(r0)
+	return
+}
+
 func DefineDosDevice(flags uint32, deviceName *uint16, targetPath *uint16) (err error) {
 	r1, _, e1 := syscall.Syscall(procDefineDosDeviceW.Addr(), 3, uintptr(flags), uintptr(unsafe.Pointer(deviceName)), uintptr(unsafe.Pointer(targetPath)))
 	if r1 == 0 {
@@ -2782,6 +2845,12 @@ func createWellKnownSid(sidType WELL_KNOWN_SID_TYPE, domainSid *SID, sid *SID, s
 	return
 }
 
+func isWellKnownSid(sid *SID, sidType WELL_KNOWN_SID_TYPE) (isWellKnown bool) {
+	r0, _, _ := syscall.Syscall(procIsWellKnownSid.Addr(), 2, uintptr(unsafe.Pointer(sid)), uintptr(sidType), 0)
+	isWellKnown = r0 != 0
+	return
+}
+
 func FreeSid(sid *SID) (err error) {
 	r1, _, e1 := syscall.Syscall(procFreeSid.Addr(), 1, uintptr(unsafe.Pointer(sid)), 0, 0)
 	if r1 != 0 {
@@ -2797,6 +2866,30 @@ func FreeSid(sid *SID) (err error) {
 func EqualSid(sid1 *SID, sid2 *SID) (isEqual bool) {
 	r0, _, _ := syscall.Syscall(procEqualSid.Addr(), 2, uintptr(unsafe.Pointer(sid1)), uintptr(unsafe.Pointer(sid2)), 0)
 	isEqual = r0 != 0
+	return
+}
+
+func getSidIdentifierAuthority(sid *SID) (authority *SidIdentifierAuthority) {
+	r0, _, _ := syscall.Syscall(procGetSidIdentifierAuthority.Addr(), 1, uintptr(unsafe.Pointer(sid)), 0, 0)
+	authority = (*SidIdentifierAuthority)(unsafe.Pointer(r0))
+	return
+}
+
+func getSidSubAuthorityCount(sid *SID) (count *uint8) {
+	r0, _, _ := syscall.Syscall(procGetSidSubAuthorityCount.Addr(), 1, uintptr(unsafe.Pointer(sid)), 0, 0)
+	count = (*uint8)(unsafe.Pointer(r0))
+	return
+}
+
+func getSidSubAuthority(sid *SID, index uint32) (subAuthority *uint32) {
+	r0, _, _ := syscall.Syscall(procGetSidSubAuthority.Addr(), 2, uintptr(unsafe.Pointer(sid)), uintptr(index), 0)
+	subAuthority = (*uint32)(unsafe.Pointer(r0))
+	return
+}
+
+func isValidSid(sid *SID) (isValid bool) {
+	r0, _, _ := syscall.Syscall(procIsValidSid.Addr(), 1, uintptr(unsafe.Pointer(sid)), 0, 0)
+	isValid = r0 != 0
 	return
 }
 
@@ -2824,12 +2917,6 @@ func OpenProcessToken(process Handle, access uint32, token *Token) (err error) {
 	return
 }
 
-func GetCurrentThreadToken() (token Token) {
-	r0, _, _ := syscall.Syscall(procGetCurrentThreadToken.Addr(), 0, 0, 0, 0)
-	token = Token(r0)
-	return
-}
-
 func OpenThreadToken(thread Handle, access uint32, openAsSelf bool, token *Token) (err error) {
 	var _p0 uint32
 	if openAsSelf {
@@ -2845,12 +2932,6 @@ func OpenThreadToken(thread Handle, access uint32, openAsSelf bool, token *Token
 			err = syscall.EINVAL
 		}
 	}
-	return
-}
-
-func GetCurrentProcessToken() (token Token) {
-	r0, _, _ := syscall.Syscall(procGetCurrentProcessToken.Addr(), 0, 0, 0, 0)
-	token = Token(r0)
 	return
 }
 

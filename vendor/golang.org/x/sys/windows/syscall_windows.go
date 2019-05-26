@@ -138,6 +138,7 @@ func NewCallbackCDecl(fn interface{}) uintptr {
 //sys	GetVersion() (ver uint32, err error)
 //sys	FormatMessage(flags uint32, msgsrc uintptr, msgid uint32, langid uint32, buf []uint16, args *byte) (n uint32, err error) = FormatMessageW
 //sys	ExitProcess(exitcode uint32)
+//sys	IsWow64Process(handle Handle, isWow64 *bool) (err error) = IsWow64Process
 //sys	CreateFile(name *uint16, access uint32, mode uint32, sa *SecurityAttributes, createmode uint32, attrs uint32, templatefile Handle) (handle Handle, err error) [failretval==InvalidHandle] = CreateFileW
 //sys	ReadFile(handle Handle, buf []byte, done *uint32, overlapped *Overlapped) (err error)
 //sys	WriteFile(handle Handle, buf []byte, done *uint32, overlapped *Overlapped) (err error)
@@ -251,6 +252,10 @@ func NewCallbackCDecl(fn interface{}) uintptr {
 //sys	ResetEvent(event Handle) (err error) = kernel32.ResetEvent
 //sys	PulseEvent(event Handle) (err error) = kernel32.PulseEvent
 //sys	SleepEx(milliseconds uint32, alertable bool) (ret uint32) = kernel32.SleepEx
+//sys	CreateJobObject(jobAttr *SecurityAttributes, name *uint16) (handle Handle, err error) = kernel32.CreateJobObjectW
+//sys	AssignProcessToJobObject(job Handle, process Handle) (err error) = kernel32.AssignProcessToJobObject
+//sys	TerminateJobObject(job Handle, exitCode uint32) (err error) = kernel32.TerminateJobObject
+//sys	SetErrorMode(mode uint32) (ret uint32) = kernel32.SetErrorMode
 
 // Volume Management Functions
 //sys	DefineDosDevice(flags uint32, deviceName *uint16, targetPath *uint16) (err error) = DefineDosDeviceW

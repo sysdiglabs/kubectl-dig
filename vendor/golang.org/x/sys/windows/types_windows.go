@@ -4,7 +4,11 @@
 
 package windows
 
-import "syscall"
+import (
+	"net"
+	"syscall"
+	"unsafe"
+)
 
 const (
 	// Invented values to support what package os expects.
@@ -394,6 +398,14 @@ const (
 	SECURITY_FLAG_IGNORE_WRONG_USAGE       = 0x00000200
 	SECURITY_FLAG_IGNORE_CERT_CN_INVALID   = 0x00001000
 	SECURITY_FLAG_IGNORE_CERT_DATE_INVALID = 0x00002000
+)
+
+const (
+	// flags for SetErrorMode
+	SEM_FAILCRITICALERRORS     = 0x0001
+	SEM_NOALIGNMENTFAULTEXCEPT = 0x0004
+	SEM_NOGPFAULTERRORBOX      = 0x0002
+	SEM_NOOPENFILEERRORBOX     = 0x8000
 )
 
 var (
@@ -1312,6 +1324,16 @@ const (
 type SocketAddress struct {
 	Sockaddr       *syscall.RawSockaddrAny
 	SockaddrLength int32
+}
+
+// IP returns an IPv4 or IPv6 address, or nil if the underlying SocketAddress is neither.
+func (addr *SocketAddress) IP() net.IP {
+	if uintptr(addr.SockaddrLength) >= unsafe.Sizeof(RawSockaddrInet4{}) && addr.Sockaddr.Addr.Family == AF_INET {
+		return (*RawSockaddrInet4)(unsafe.Pointer(addr.Sockaddr)).Addr[:]
+	} else if uintptr(addr.SockaddrLength) >= unsafe.Sizeof(RawSockaddrInet6{}) && addr.Sockaddr.Addr.Family == AF_INET6 {
+		return (*RawSockaddrInet6)(unsafe.Pointer(addr.Sockaddr)).Addr[:]
+	}
+	return nil
 }
 
 type IpAdapterUnicastAddress struct {
