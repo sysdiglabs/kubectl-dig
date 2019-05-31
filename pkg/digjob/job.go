@@ -85,10 +85,50 @@ func (c *Client) CreateJob(j Job) (*batchv1.Job, error) {
 					ServiceAccountName: j.ServiceAccount,
 					Volumes: []apiv1.Volume{
 						{
-							Name: "hostroot",
+							Name: "varrun",
 							VolumeSource: apiv1.VolumeSource{
 								HostPath: &apiv1.HostPathVolumeSource{
-									Path: "/",
+									Path: "/var/run",
+								},
+							},
+						},
+						{
+							Name: "dev",
+							VolumeSource: apiv1.VolumeSource{
+								HostPath: &apiv1.HostPathVolumeSource{
+									Path: "/dev",
+								},
+							},
+						},
+						{
+							Name: "boot",
+							VolumeSource: apiv1.VolumeSource{
+								HostPath: &apiv1.HostPathVolumeSource{
+									Path: "/boot",
+								},
+							},
+						},
+						{
+							Name: "proc",
+							VolumeSource: apiv1.VolumeSource{
+								HostPath: &apiv1.HostPathVolumeSource{
+									Path: "/proc",
+								},
+							},
+						},
+						{
+							Name: "usr",
+							VolumeSource: apiv1.VolumeSource{
+								HostPath: &apiv1.HostPathVolumeSource{
+									Path: "/usr",
+								},
+							},
+						},
+						{
+							Name: "modules",
+							VolumeSource: apiv1.VolumeSource{
+								HostPath: &apiv1.HostPathVolumeSource{
+									Path: "/lib/modules",
 								},
 							},
 						},
@@ -112,9 +152,31 @@ func (c *Client) CreateJob(j Job) (*batchv1.Job, error) {
 							},
 							VolumeMounts: []apiv1.VolumeMount{
 								{
-									Name:      "hostroot",
-									MountPath: "/host",
-									ReadOnly:  true,
+									Name:      "varrun",
+									MountPath: "/host/var/run",
+								},
+								{
+									Name:      "dev",
+									MountPath: "/host/dev",
+								},
+								{
+									Name:      "boot",
+									MountPath: "/host/boot",
+									ReadOnly: true,
+								},
+								{
+									Name:      "proc",
+									MountPath: "/host/proc",
+									ReadOnly: true,
+								},
+								{
+									Name:      "usr",
+									MountPath: "/host/usr",
+									ReadOnly: true,
+								},
+								{
+									Name:      "modules",
+									MountPath: "/host/lib/modules",
 								},
 							},
 							SecurityContext: &apiv1.SecurityContext{
