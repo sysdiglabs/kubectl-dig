@@ -58,6 +58,13 @@ func (c *Client) CreateJob(j Job) (*batchv1.Job, error) {
 		}
 	}
 
+	env := []apiv1.EnvVar{
+		apiv1.EnvVar{
+			Name:  "SYSDIG_BPF_PROBE",
+			Value: "",
+		},
+	}
+
 	commonMeta := metav1.ObjectMeta{
 		Name:      j.Name,
 		Namespace: j.Namespace,
@@ -84,6 +91,14 @@ func (c *Client) CreateJob(j Job) (*batchv1.Job, error) {
 					HostPID:            true,
 					ServiceAccountName: j.ServiceAccount,
 					Volumes: []apiv1.Volume{
+						{
+							Name: "etc",
+							VolumeSource: apiv1.VolumeSource{
+								HostPath: &apiv1.HostPathVolumeSource{
+									Path: "/etc",
+								},
+							},
+						},
 						{
 							Name: "varrun",
 							VolumeSource: apiv1.VolumeSource{
@@ -140,6 +155,7 @@ func (c *Client) CreateJob(j Job) (*batchv1.Job, error) {
 							Command: command,
 							TTY:     true,
 							Stdin:   true,
+							Env:     env,
 							Resources: apiv1.ResourceRequirements{
 								Requests: apiv1.ResourceList{
 									apiv1.ResourceCPU:    resource.MustParse("100m"),
@@ -152,6 +168,11 @@ func (c *Client) CreateJob(j Job) (*batchv1.Job, error) {
 							},
 							VolumeMounts: []apiv1.VolumeMount{
 								{
+									Name:      "etc",
+									MountPath: "/host/etc",
+									ReadOnly:  true,
+								},
+								{
 									Name:      "varrun",
 									MountPath: "/host/var/run",
 								},
@@ -162,17 +183,17 @@ func (c *Client) CreateJob(j Job) (*batchv1.Job, error) {
 								{
 									Name:      "boot",
 									MountPath: "/host/boot",
-									ReadOnly: true,
+									ReadOnly:  true,
 								},
 								{
 									Name:      "proc",
 									MountPath: "/host/proc",
-									ReadOnly: true,
+									ReadOnly:  true,
 								},
 								{
 									Name:      "usr",
 									MountPath: "/host/usr",
-									ReadOnly: true,
+									ReadOnly:  true,
 								},
 								{
 									Name:      "modules",
